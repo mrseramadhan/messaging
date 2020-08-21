@@ -5,12 +5,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 
 	_ "./models"
 	routes "./routes"
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
 )
 
 func startServer() {
@@ -29,13 +27,6 @@ func startServer() {
 }
 
 func main() {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		log.Fatal(err)
-	}
-	environmentPath := filepath.Join(dir, ".env")
-	err = godotenv.Load(environmentPath)
-	log.Fatal(err)
 
 	startServer()
 }
