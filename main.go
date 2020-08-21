@@ -9,6 +9,7 @@ import (
 	_ "./models"
 	routes "./routes"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 )
 
 func startServer() {
@@ -27,5 +28,11 @@ func startServer() {
 }
 
 func main() {
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
 	startServer()
 }
