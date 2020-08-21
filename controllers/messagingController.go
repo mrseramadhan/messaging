@@ -1,10 +1,15 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
+	"time"
+
+	"github.com/mailgun/mailgun-go"
 
 	"github.com/gorilla/mux"
 	"github.com/ramvasanth/wavecell"
@@ -15,15 +20,18 @@ import (
 
 // CreateMessage this func will create a message and save it to scheduler
 func CreateMessage(w http.ResponseWriter, r *http.Request) {
-	messaging := &models.MessagingModel{}
+	var messaging models.MessagingModel
 
-	err := json.NewDecoder(r.Body).Decode(messaging)
+	err := json.NewDecoder(r.Body).Decode(&messaging)
 	if err != nil {
 		u.Respond(w, u.Message(false, "Error while decoding request body"))
 		return
 	}
 
 	defer r.Body.Close()
+
+	messaging.Status = 0
+	messaging.ScheduleDate = time.Now().Local().Add(time.Second + 10)
 
 	resp := messaging.CreateMessaging()
 	u.Respond(w, resp)
@@ -69,14 +77,43 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 
 		resp := u.Message(true, "success")
 
+		resp["id"] = id
 		resp["data"] = r
 		u.Respond(w, resp)
+		return
 	} else if message.Type == "EMAIL" {
-		mBody := 
-	}
+		mg := mailgun.NewMailgun(os.Getenv("mailgun_domain"), os.Getenv("mailgun_private_api"))
 
-	resp := u.Message(true, "success")
-	resp["data"] = message.Type
-	u.Respond(w, resp)
-	return
+		sender := os.Getenv("mailgun_sender_email")
+		subject := message.MessageName
+		body := message.MessageBody
+		recipient := message.DestinationID
+
+		mgMessage := mg.NewMessage(sender, subject, "", recipient)
+		mgMessage.SetHtml(body)
+
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel()
+
+		r, id, err := mg.Send(ctx, mgMessage)
+
+		if err != nil {
+			log.Fatal(err)
+			u.Respond(w, u.Message(false, "Error Sending Message to MailGun"))
+			return
+		}
+
+		resp := u.Message(true, "success")
+
+		resp["id"] = id
+		resp["data"] = r
+
+		u.Respond(w, resp)
+		return
+	} else if message.Type == "ONEPUSH" {
+		// client := onesignal.NewClient(nil)
+
+		// client.UserKey := os.Getenv("ONE_SIGNAL_USER_KEY")
+		// client.AppKey := os.Getenv("ONE_SIGNAL_APP_KEY")
+	}
 }
