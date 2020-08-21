@@ -1,4 +1,4 @@
-// package controllers
+package controllers
 
 // import (
 // 	"log"
@@ -12,7 +12,7 @@
 // 	"github.com/gorilla/mux"
 // )
 
-// func SendOtpMessage(w http.ResponseWriter, r *http.Request) {
+// func SendMessage(w http.ResponseWriter, r *http.Request) {
 // 	params := mux.Vars(r)
 
 // 	id, err := strconv.Atoi(params["id"])
@@ -57,9 +57,9 @@
 // 		mBody :=
 // 	}
 
-// 	// resp := u.Message(true, "success")
-// 	// resp["data"] = message.Type
-// 	// u.Respond(w, resp)
-// 	// return
+// 	resp := u.Message(true, "success")
+// 	resp["data"] = message.Type
+// 	u.Respond(w, resp)
+// 	return
 
 // }
