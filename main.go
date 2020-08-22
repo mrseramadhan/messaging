@@ -15,7 +15,7 @@ func startServer() {
 	port := os.Getenv("web_port")
 	prefix := os.Getenv("prefix")
 	fmt.Println("Server started at " + port + "...")
-	r := mux.NewRouter().StrictSlash(true)
+	r := mux.NewRouter().StrictSlash(false)
 	// Routes
 	routes.ApiRoutes(prefix, r)
 
