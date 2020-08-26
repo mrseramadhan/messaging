@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	controllers "./controllers"
 	_ "./models"
 	routes "./routes"
 	"github.com/gorilla/mux"
@@ -17,6 +18,7 @@ func startServer() {
 	fmt.Println("Server started at " + port + "...")
 	r := mux.NewRouter().StrictSlash(true)
 	// Routes
+	r.Methods("POST").HandlerFunc(controllers.CreateMessage).Path("/messaging")
 	routes.ApiRoutes(prefix, r)
 
 	//Start Server on the port set in your .env file
