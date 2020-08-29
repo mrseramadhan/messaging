@@ -61,7 +61,7 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 	if message.Type == "SMS" {
 
 		mBody := wavecell.Message{
-			From: "WL INFO",
+			From: os.Getenv("waave_cell_name"),
 			To:   message.DestinationID,
 			Text: message.MessageBody,
 		}
