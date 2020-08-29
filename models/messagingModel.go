@@ -34,7 +34,7 @@ func (messaging *MessagingModel) Validate() (map[string]interface{}, bool) {
 	}
 
 	if messaging.Type == "" {
-		return u.Message(false, "tyoe required"), false
+		return u.Message(false, "type required"), false
 	}
 
 	if messaging.MessageTitle == "" {

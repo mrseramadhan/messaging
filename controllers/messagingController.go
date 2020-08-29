@@ -24,16 +24,20 @@ func CreateMessage(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&messaging)
 	if err != nil {
-		u.Respond(w, u.Message(false, "Error while decoding request body"))
+		u.RespondMethodNotAllowed(w, u.Message(false, "Error while decoding request body"))
 		return
 	}
 
 	defer r.Body.Close()
 
 	messaging.Status = 0
-	messaging.ScheduleDate = time.Now().Local().Add(time.Second + 10)
 
 	resp := messaging.CreateMessaging()
+
+	if resp["status"] != true {
+		u.RespondMethodNotAllowed(w, u.Message(false, "validation error"))
+		return
+	}
 	u.Respond(w, resp)
 }
 

@@ -28,8 +28,9 @@ func init() {
 	dbType := os.Getenv("db_type")
 	charset := os.Getenv("charset")
 	parseTime := os.Getenv("parse_time")
+	timezone := os.Getenv("timezone")
 
-	dbURI := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&&parseTime=%s", username, password, dbHost, dbPort, dbName, charset, parseTime)
+	dbURI := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&&parseTime=%s&&loc=%s", username, password, dbHost, dbPort, dbName, charset, parseTime, timezone)
 	conn, err := gorm.Open(dbType, dbURI)
 
 	db = conn
