@@ -1,25 +1,27 @@
 package models
 
 import (
+	"time"
+
 	u "../utils"
 	"github.com/jinzhu/gorm"
 )
 
 // ScheduleModel represents a request to run a command.
 type ScheduleModel struct {
-	ID           int64  `json:"id"`
-	Status       string `form:"status" json:"status"`
-	Name         string `form:"name" json:"name"`
-	Type         string `form:"type" json:"type"`
-	StartDate    string `form:"start_date" json:"start_date"`
-	EndDate      string `form:"end_date" json:"end_date"`
-	Urlpath      string `form:"url_path" json:"url_path"`
-	LastExecute  string `form:"last_execute" json:"last_execute"`
-	StatusReturn string `form:"status_return" json:"status_return"`
-	Day          string `form:"day" json:"day"`
-	Hour         string `form:"hour" json:"hour"`
-	Minute       string `form:"minute" json:"minute"`
-	User         string `form:"user" json:"user"`
+	Status        int        `form:"status" json:"status"`
+	Name          string     `form:"name" json:"name"`
+	Type          int        `form:"type" json:"type"`
+	StartDate     time.Time  `form:"start_date" json:"start_date"`
+	EndDate       *time.Time `form:"end_date" json:"end_date"`
+	URLPATH       string     `form:"url_path" json:"url_path"`
+	LastExecute   *time.Time `form:"last_execute" json:"last_execute"`
+	StatusReturn  *int       `form:"status_return" json:"status_return"`
+	Day           *int       `form:"day" json:"day"`
+	Hour          *int       `form:"hour" json:"hour"`
+	Minute        *int       `form:"minute" json:"minute"`
+	Counterfailed int        `form:"counterfailed" json:"counterfailed"`
+	User          *string    `form:"user" json:"user"`
 	gorm.Model
 }
 

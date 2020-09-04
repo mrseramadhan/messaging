@@ -9,7 +9,6 @@ import (
 
 // MessagingModel .
 type MessagingModel struct {
-	ID            int64     `json:"id"`
 	DestinationID string    `form:"destination_id" json:"destination_id"`
 	Type          string    `form:"type" json:"type"`
 	MessageName   string    `form:"message_name" json:"message_name"`

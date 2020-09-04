@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/drepione/onesignal-go"
 	"github.com/mailgun/mailgun-go"
 
 	"github.com/gorilla/mux"
@@ -22,6 +23,8 @@ import (
 func CreateMessage(w http.ResponseWriter, r *http.Request) {
 	var messaging models.MessagingModel
 
+	var scheduling models.ScheduleModel
+
 	err := json.NewDecoder(r.Body).Decode(&messaging)
 	if err != nil {
 		u.RespondMethodNotAllowed(w, u.Message(false, "Error while decoding request body"))
@@ -30,9 +33,18 @@ func CreateMessage(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
+	messaging.ScheduleDate = time.Now()
 	messaging.Status = 0
 
 	resp := messaging.CreateMessaging()
+
+	scheduling.Status = 0
+	scheduling.Counterfailed = 0
+	scheduling.Type = 0
+	scheduling.Name = messaging.MessageName
+	scheduling.URLPATH = "http://178.128.16.230:5900/api/v1/messaging/" + strconv.FormatUint(uint64(messaging.ID), 10)
+	scheduling.StartDate = messaging.ScheduleDate
+	scheduling.CreateSchedule()
 
 	if resp["status"] != true {
 		u.RespondMethodNotAllowed(w, u.Message(false, "validation error"))
@@ -114,10 +126,34 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 
 		u.Respond(w, resp)
 		return
-	} else if message.Type == "ONEPUSH" {
-		// client := onesignal.NewClient(nil)
+	} else if message.Type == "PUSH_NOTIF" {
+		client := onesignal.NewClient(nil)
 
-		// client.UserKey := os.Getenv("ONE_SIGNAL_USER_KEY")
-		// client.AppKey := os.Getenv("ONE_SIGNAL_APP_KEY")
+		client.UserKey = os.Getenv("ONE_SIGNAL_USER_KEY")
+		client.AppKey = os.Getenv("ONE_SIGNAL_APP_KEY")
+
+		appID := os.Getenv("ONE_SIGNAL_APP_ID")
+
+		notificationReq := &onesignal.NotificationRequest{
+			AppID:                  appID,
+			Contents:               map[string]string{"en": message.MessageBody},
+			IncludeExternalUserIDs: []string{message.DestinationID},
+		}
+
+		createRes, res, err := client.Notifications.Create(notificationReq)
+
+		if err != nil {
+			log.Fatal(err)
+			u.Respond(w, u.Message(false, "Error Sending Message to Onepush"))
+			return
+		}
+
+		resp := u.Message(true, "Success")
+		resp["data"] = createRes
+		resp["res"] = res
+
+		u.Respond(w, resp)
+		return
+
 	}
 }
