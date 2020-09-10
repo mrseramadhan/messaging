@@ -14,7 +14,7 @@ type MessagingModel struct {
 	MessageName   string    `form:"message_name" json:"message_name"`
 	MessageTitle  string    `form:"message_title" json:"message_title"`
 	MessageBody   string    `form:"message_body" json:"message_body"`
-	MessageDesc   string    `form:"message_desc" json:"message_desc"`
+	MessageDesc   *string   `form:"message_desc" json:"message_desc"`
 	MessageType   string    `form:"message_type" json:"message_type"`
 	ScheduleDate  time.Time `form:"schedule_date" json:"schedule_date"`
 	Status        int       `form:"status" json:"status"`

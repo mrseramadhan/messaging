@@ -19,6 +19,11 @@ import (
 	u "../utils"
 )
 
+type PushNotif struct {
+	URL_PATH    string
+	PREFIX_PATH string
+}
+
 // CreateMessage this func will create a message and save it to scheduler
 func CreateMessage(w http.ResponseWriter, r *http.Request) {
 	var messaging models.MessagingModel
@@ -127,6 +132,9 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 		u.Respond(w, resp)
 		return
 	} else if message.Type == "PUSH_NOTIF" {
+		var pushNotif PushNotif
+		json.Unmarshal([]byte(*message.MessageDesc), &pushNotif)
+
 		client := onesignal.NewClient(nil)
 
 		client.UserKey = os.Getenv("ONE_SIGNAL_USER_KEY")
@@ -137,6 +145,7 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 		notificationReq := &onesignal.NotificationRequest{
 			AppID:                  appID,
 			Contents:               map[string]string{"en": message.MessageBody},
+			URL:                    pushNotif.URL_PATH,
 			IncludeExternalUserIDs: []string{message.DestinationID},
 		}
 
