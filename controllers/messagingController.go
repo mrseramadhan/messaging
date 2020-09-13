@@ -3,7 +3,6 @@ package controllers
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -47,7 +46,7 @@ func CreateMessage(w http.ResponseWriter, r *http.Request) {
 	scheduling.Counterfailed = 0
 	scheduling.Type = 0
 	scheduling.Name = messaging.MessageName
-	scheduling.URLPATH = "http://178.128.16.230:5900/api/v1/messaging/" + strconv.FormatUint(uint64(messaging.ID), 10)
+	scheduling.URLPATH = os.Getenv("base_url") + "/messaging/" + strconv.FormatUint(uint64(messaging.ID), 10)
 	scheduling.StartDate = messaging.ScheduleDate
 	scheduling.CreateSchedule()
 
@@ -65,13 +64,13 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(params["id"])
 
 	if err != nil {
-		u.Respond(w, u.Message(false, "There was an error in your request"))
+		u.RespondNotFound(w, u.Message(false, "Failed to find messaging"))
 	}
 
 	message := models.GetMessaging(id)
 
 	if message == nil {
-		u.Respond(w, u.Message(false, "Message Not found"))
+		u.RespondNotFound(w, u.Message(false, "Message Not found"))
 		return
 	}
 
@@ -119,8 +118,7 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 		r, id, err := mg.Send(ctx, mgMessage)
 
 		if err != nil {
-			log.Fatal(err)
-			u.Respond(w, u.Message(false, "Error Sending Message to MailGun"))
+			u.RespondBadRequest(w, u.Message(false, "Error Sending Message to MailGun"))
 			return
 		}
 
@@ -133,7 +131,18 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	} else if message.Type == "PUSH_NOTIF" {
 		var pushNotif PushNotif
-		json.Unmarshal([]byte(*message.MessageDesc), &pushNotif)
+		var urlPath = ""
+		if message.MessageDesc != nil {
+			json.Unmarshal([]byte(*message.MessageDesc), &pushNotif)
+
+			if pushNotif.URL_PATH != "" {
+				urlPath = pushNotif.URL_PATH
+			} else if pushNotif.PREFIX_PATH != "" {
+				urlPath = pushNotif.PREFIX_PATH
+			} else {
+				urlPath = ""
+			}
+		}
 
 		client := onesignal.NewClient(nil)
 
@@ -145,15 +154,14 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 		notificationReq := &onesignal.NotificationRequest{
 			AppID:                  appID,
 			Contents:               map[string]string{"en": message.MessageBody},
-			URL:                    pushNotif.URL_PATH,
+			URL:                    urlPath,
 			IncludeExternalUserIDs: []string{message.DestinationID},
 		}
 
 		createRes, res, err := client.Notifications.Create(notificationReq)
 
 		if err != nil {
-			log.Fatal(err)
-			u.Respond(w, u.Message(false, "Error Sending Message to Onepush"))
+			u.RespondBadRequest(w, u.Message(false, "Error Sending Message to Onepush"))
 			return
 		}
 
