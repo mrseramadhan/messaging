@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -118,6 +119,7 @@ func SendMessage(w http.ResponseWriter, r *http.Request) {
 		r, id, err := mg.Send(ctx, mgMessage)
 
 		if err != nil {
+			log.Fatal(err)
 			u.RespondBadRequest(w, u.Message(false, "Error Sending Message to MailGun"))
 			return
 		}
