@@ -9,11 +9,11 @@ type PayLoadOneSignal struct {
 }
 
 func SendMailGun() {
-	req, err := http.NewRequest("GET", "https://api.mailgun.net/v3/sandbox620241f22f6b43f488ac2a9cdb451e40.mailgun.org/messages", nil)
+	req, err := http.NewRequest("GET", "https://api.mailgun.net/v3/sandboxd66b77f5ba444901bb36552b050bfffe.mailgun.org/messages", nil)
 	if err != nil {
 		// handle err
 	}
-	req.SetBasicAuth("api", "8688e6703fabba9e49cb39098b8ae41a-ffefc4e4-bcc13685")
+	req.SetBasicAuth("api", "489fcff1493a0697aede15e0ac9ac61f-ba042922-2ed0ecfd")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

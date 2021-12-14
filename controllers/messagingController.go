@@ -26,6 +26,7 @@ type PushNotif struct {
 
 // CreateMessage this func will create a message and save it to scheduler
 func CreateMessage(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.Body)
 	var messaging models.MessagingModel
 
 	var scheduling models.ScheduleModel
